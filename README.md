@@ -1,7 +1,7 @@
 # Previsão do tempo em Cli 
 
 
-## Pequeno projetinho em GO visando aprender mais sobre a linguagem usando o padrão Rest 
+## Pequeno projetinho em GO visando aprender mais sobre a linguagem GO usando o padrão de API Rest 
 Utilizando a API OneCall 3.0 da OpenWHeather para extrair os dados do clima e Golang
 <html>
   <div> 
