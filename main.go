@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cliOpn/starter"
 	"os"
 )
 
@@ -10,10 +11,10 @@ import (
 func main() {
 	if len(os.Args) > 1 {
 		// Modo CLI
-		handleCLI()
+		starter.HandleCLI()
 	} else {
 		// Modo Servidor
-		startServer()
+		starter.StartServer()
 	}
 
 }
