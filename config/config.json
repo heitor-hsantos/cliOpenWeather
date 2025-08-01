@@ -1,3 +1,5 @@
 {
-  "exclude": [""]
+  "exclude": [],
+  "lat": 0,
+  "lon": 0
 }
