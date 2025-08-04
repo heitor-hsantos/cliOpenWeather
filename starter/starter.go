@@ -1,6 +1,8 @@
 package starter
 
 import (
+	"cliOpn/config"
+	"cliOpn/handlers"
 	"cliOpn/routes"
 	"fmt"
 	"log"
@@ -16,7 +18,10 @@ func HandleCLI() {
 		os.Exit(1)
 	}
 
-	weatherInfo := "O App roda"
+	weatherInfo, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
+	if err != nil {
+		log.Fatalf("Erro ao buscar dados do tempo: %v", err)
+	}
 
 	fmt.Println("Dados do tempo:", weatherInfo)
 

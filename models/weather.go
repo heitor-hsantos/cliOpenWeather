@@ -2,7 +2,7 @@ package models
 
 // WeatherData representa um modelo de usuário de exemplo
 type WeatherData struct {
-	ID   int    `json:"id"`
+	ID   int    `json:"temp"`
 	Name string `json:"name"`
 }
 
