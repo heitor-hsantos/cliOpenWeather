@@ -5,60 +5,77 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
-// GetWeatherData é um manipulador de rota que retorna dados de previsão do tempo
-func GetWeatherData(w http.ResponseWriter, r *http.Request) {
-	lat := r.URL.Query().Get("lat")
-	lon := r.URL.Query().Get("lon")
-	if lat == "" || lon == "" {
-		http.Error(w, "latitude and longitude parameter is required", http.StatusBadRequest)
-		fmt.Println("blank LAT or LON information")
-		return
-	}
+// FetchWeatherData busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros e retorna uma estrutura WeatherResponse ou um erro
+func FetchWeatherData(lat, lon float64) (*models.WeatherResponse, error) {
 	apiKey := os.Getenv("OPENWEATHER_API_KEY")
 	apiUrl := os.Getenv("OPENWEATHER_API_URL")
 
-	requestURL := apiUrl + "?q=" + lat + "," + lon + "&appid=" + apiKey + "&units=metric"
+	requestURL := fmt.Sprintf("%s?lat=%s&lon=%s&appid=%s&units=metric", apiUrl, lat, lon, apiKey)
+
 	resp, err := http.Get(requestURL)
 	if err != nil {
-		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)
-		fmt.Println("Error fetching weather data:", err)
-
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-
-			}
-		}(resp.Body)
-
-		if resp.StatusCode != http.StatusOK {
-			http.Error(w, "Failed to fetch weather data", resp.StatusCode)
-			fmt.Println("Error fetching weather data: status code", resp.StatusCode)
-		}
-		var weatherData models.WeatherResponse
-		if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
-			http.Error(w, "Failed to decode weather data", http.StatusInternalServerError)
-			fmt.Println("Error JSON decoding weather data:", err)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(weatherData); err != nil {
-			http.Error(w, "Failed to encode weather data", http.StatusInternalServerError)
-			fmt.Println("Error encoding weather data to JSON:", err)
-
-			// Log the successful fetch
-			// log.Printf("Weather data fetched successfully for lat: %s, lon: %s
-			w.WriteHeader(http.StatusOK)
-			fmt.Println("Weather data fetched successfully for lat:", lat, "lon:", lon)
-			// Return the weather data as JSON response
-			w.Write([]byte(fmt.Sprintf(`{"lat": "%s", "lon": "%s", "weather": %s}`, lat, lon, weatherData)))
-			fmt.Println("Weather data:", weatherData)
-			return
+		return nil, fmt.Errorf("failed to fetch weather data: %w", err)
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
 
 		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch weather data: status code %d", resp.StatusCode)
+	}
+
+	var weatherData models.WeatherResponse
+	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
+		return nil, fmt.Errorf("failed to decode weather data: %w", err)
+	}
+
+	return &weatherData, nil
+}
+
+// GetWeatherData é um manipulador de rota que retorna dados de previsão do tempo
+func GetWeatherData(w http.ResponseWriter, r *http.Request) {
+
+	latStr := r.URL.Query().Get("lat")
+	if latStr == "" {
+		http.Error(w, "O parâmetro 'lat' é obrigatório", http.StatusBadRequest)
+		return
+	}
+	lonStr := r.URL.Query().Get("lon")
+	if lonStr == "" {
+		http.Error(w, "O parâmetro 'lon' é obrigatório", http.StatusBadRequest)
+		return
+	}
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		http.Error(w, "Parâmetro 'lat' inválido", http.StatusBadRequest)
+		return
+	}
+	lon, err := strconv.ParseFloat(lonStr, 64)
+	if err != nil {
+		http.Error(w, "Parâmetro 'lon' inválido", http.StatusBadRequest)
+		return
+	}
+
+	weatherData, err := FetchWeatherData(lat, lon)
+	if err != nil {
+		log.Printf("Erro ao buscar dados do tempo: %v", err)
+		http.Error(w, "Erro ao buscar dados do tempo", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(weatherData); err != nil {
+		log.Printf("Erro ao codificar dados do tempo: %v", err)
+		http.Error(w, "Erro ao codificar dados do tempo", http.StatusInternalServerError)
+		return
 	}
 }

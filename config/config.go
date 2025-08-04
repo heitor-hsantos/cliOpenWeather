@@ -13,6 +13,8 @@ type Config struct {
 
 const configPath = "config.json"
 
+var AppConfig Config
+
 func LoadConfig() (*Config, error) {
 	// Configuração padrão
 	conf := &Config{
@@ -62,4 +64,13 @@ func UpdateCoordinates(lat, lon float64) error {
 	return conf.SaveConfig()
 }
 
-func UpdatexcludedFields() {}
+func UpdatexcludedFields(excluded []string) error {
+	conf, err := LoadConfig()
+	if err != nil {
+		return err
+	}
+
+	conf.ExcludedFields = excluded
+
+	return conf.SaveConfig()
+}
