@@ -1,6 +1,7 @@
 package starter
 
 import (
+	"cliOpn/cmd"
 	"cliOpn/config"
 	"cliOpn/handlers"
 	"cliOpn/routes"
@@ -12,12 +13,11 @@ import (
 )
 
 func HandleCLI() {
+
 	if len(os.Args) < 3 || os.Args[1] != "get" || os.Args[2] != "weather" {
-		fmt.Println("Uso: go run main.go get weather \n" +
-			"<Se o CLI não for configurdao previamente o comando exibira por default dados de Nova York>")
+		cmd.Execute()
 		os.Exit(1)
 	}
-
 	weatherInfo, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
 	if err != nil {
 		log.Fatalf("Erro ao buscar dados do tempo: %v", err)

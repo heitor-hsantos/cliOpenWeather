@@ -16,7 +16,8 @@ func FetchWeatherData(lat, lon float64) (*models.WeatherResponse, error) {
 	apiKey := os.Getenv("OPENWEATHER_API_KEY")
 	apiUrl := os.Getenv("OPENWEATHER_API_URL")
 
-	requestURL := fmt.Sprintf("%s?lat=%s&lon=%s&appid=%s&units=metric", apiUrl, lat, lon, apiKey)
+	//"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}"
+	requestURL := fmt.Sprintf("%s?lat=%f&lon=%f&exclude=minutely&appid=%s", apiUrl, lat, lon, apiKey)
 
 	resp, err := http.Get(requestURL)
 	if err != nil {
