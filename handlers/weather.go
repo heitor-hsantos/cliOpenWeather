@@ -5,17 +5,18 @@ import (
 	"cliOpn/models"
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 // FetchWeatherDataWithCoordinates busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros e retorna uma estrutura WeatherResponse ou um erro
-func FetchWeatherDataWithCoordinates(lat, lon float64) (*models.WeatherResponse, error) {
+func FetchWeatherDataWithCoordinates(lat, lon float64, exclude []string) (*models.WeatherResponse, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Erro ao carregar o arquivo .env")
@@ -24,7 +25,9 @@ func FetchWeatherDataWithCoordinates(lat, lon float64) (*models.WeatherResponse,
 	apiKey := os.Getenv("OPENWEATHER_API_KEY")
 	apiUrl := os.Getenv("OPENWEATHER_API_URL")
 
-	ApiUrl := fmt.Sprintf("%s?lat=%f&lon=%f&appid=%s", apiUrl, lat, lon, apiKey)
+	formatExcluded := strings.Join(exclude, ",")
+
+	ApiUrl := fmt.Sprintf("%s?lat=%f&lon=%f&exclude=%s&appid=%s", apiUrl, lat, lon, formatExcluded, apiKey)
 
 	fmt.Println(ApiUrl)
 
@@ -68,7 +71,7 @@ func FetchWeatherDataWithJson() (*models.WeatherResponse, error) {
 		log.Printf("Erro ao obter configuração: %v", err)
 		return nil, err
 	}
-	return FetchWeatherDataWithCoordinates(cfg.Lat, cfg.Lon)
+	return FetchWeatherDataWithCoordinates(cfg.Lat, cfg.Lon, cfg.ExcludedFields)
 }
 
 // GetWeatherData é um manipulador de rota que retorna dados de previsão do tempo
@@ -86,7 +89,9 @@ func GetWeatherData(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Parâmetros 'lat' ou 'lon' inválidos", http.StatusBadRequest)
 			return
 		}
-		weatherData, err = FetchWeatherDataWithCoordinates(lat, lon)
+		cfg, err := config.GetConfig()
+
+		weatherData, err = FetchWeatherDataWithCoordinates(lat, lon, cfg.ExcludedFields)
 	} else {
 		weatherData, err = FetchWeatherDataWithJson()
 		if err != nil {

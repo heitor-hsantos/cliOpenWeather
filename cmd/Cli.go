@@ -53,7 +53,11 @@ func handleGetCommand(args []string) {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
 		}
-		fmt.Println(data)
+		if data == nil {
+			fmt.Println("No weather data found.")
+			return
+		}
+
 	case "coordinate":
 		if len(args) < 3 {
 			fmt.Println("Usage: cliOpn get coordinate <lat> <lon>")
@@ -66,12 +70,18 @@ func handleGetCommand(args []string) {
 			os.Exit(1)
 		}
 		fmt.Printf("Fetching weather data for coordinates: %f, %f...\n", lat, lon)
-		data, err := handlers.FetchWeatherDataWithCoordinates(lat, lon)
+		cfg, err := config.GetConfig()
+
+		data, err := handlers.FetchWeatherDataWithCoordinates(lat, lon, cfg.ExcludedFields)
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
 		}
-		fmt.Println(data)
+		if data == nil {
+			fmt.Println("No weather data found for the specified coordinates.")
+			return
+		}
+		fmt.Println("Weather data for coordinates:", lat, lon)
 	default:
 		printHelp()
 		os.Exit(1)

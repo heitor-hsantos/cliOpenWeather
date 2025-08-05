@@ -68,11 +68,6 @@ func (c *Config) SaveConfig() error {
 	if err != nil {
 		return err
 	}
-	// Escreve o arquivo
-	err = os.WriteFile(configPath, data, 0644)
-	if err != nil {
-		return err
-	}
 	return os.WriteFile(configPath, data, 0644)
 }
 
