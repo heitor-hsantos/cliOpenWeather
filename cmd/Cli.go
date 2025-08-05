@@ -25,6 +25,8 @@ func Execute() {
 		if err, _ := config.GetConfig(); err != nil {
 			log.Fatalf("Error reading config: %v", err)
 		}
+	case "help":
+		printHelp()
 	default:
 		printHelp()
 		os.Exit(1)
@@ -37,7 +39,8 @@ func printHelp() {
 		"Example: cliOpn get weather \n" +
 		"Example: cliOpn set coordinates 40.7128 -74.0060 \n" +
 		"Example: cliOpn set excluded minutely hourly daily alerts \n" +
-		"Example: cliOpn show {display current json config}")
+		"Example: cliOpn show {display current json config}" +
+		"\n Exclude:\n" + "current\nminutely\nhourly\ndaily\nalerts")
 }
 func handleGetCommand(args []string) {
 	if len(args) < 1 {

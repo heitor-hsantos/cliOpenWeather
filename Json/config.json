@@ -1,10 +1,11 @@
 {
-  "lat": 40.7128,
-  "lon": -74.006,
+  "lat": -23.548,
+  "lon":-46.638,
   "exclude": [
     "minutely",
-    "hourly",
     "daily",
-    "alerts"
+    "hourly",
+    "alerts",
+    "flags"
   ]
 }

@@ -31,17 +31,16 @@ func GetConfig() (*Config, error) {
 
 		data, err := os.ReadFile(configPath)
 		if err != nil {
-			// Se o arquivo não existe, usamos o padrão. Não é um erro fatal.
+
 			if os.IsNotExist(err) {
 				instance = conf
 				return
 			}
-			// Para outros erros de leitura, guardamos o erro.
+
 			loadErr = err
 			return
 		}
 
-		// Se o arquivo existe, decodifica o JSON para a struct
 		if err := json.Unmarshal(data, conf); err != nil {
 			loadErr = err
 			return
@@ -53,7 +52,7 @@ func GetConfig() (*Config, error) {
 }
 
 func (c *Config) SaveConfig() error {
-	// Garante que o diretório existe
+
 	dirPath := "Json"
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err = os.MkdirAll(dirPath, 0755)
@@ -61,9 +60,9 @@ func (c *Config) SaveConfig() error {
 			return err
 		}
 	}
-	// Define o caminho do arquivo de configuração
+
 	configPath := dirPath + "/config.json"
-	// MarshalIndent formata o JSON para ser legível
+
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
