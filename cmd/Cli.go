@@ -34,6 +34,7 @@ func Execute() {
 	}
 
 }
+
 func printHelp() {
 	fmt.Println("Usage: cliOpn <get>[weather] or to config default location cliOpn <set> [coordinates|excluded] <value> \n" +
 		"Example: cliOpn get weather \n" +
@@ -42,20 +43,43 @@ func printHelp() {
 		"Example: cliOpn show {display current json config}")
 }
 func handleGetCommand(args []string) {
-	if len(args) < 1 || args[0] != "weather" {
+	if len(args) < 1 {
 		printHelp()
 		os.Exit(1)
 	}
 
-	fmt.Println("Fetching weather data...")
+	switch args[0] {
+	case "weather":
 
-	data, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
-	if err != nil {
-		fmt.Printf("Error fetching weather data: %v\n", err)
+		fmt.Println("Fetching weather data... ")
+		data, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
+		if err != nil {
+			fmt.Printf("Error fetching weather data: %v\n", err)
+			return
+		}
+		fmt.Println(data)
+	case "coordinate":
+		if len(args) < 3 {
+			fmt.Println("Usage: cliOpn get coordinate <lat> <lon>")
+			os.Exit(1)
+		}
+		lat, err1 := strconv.ParseFloat(args[1], 64)
+		lon, err2 := strconv.ParseFloat(args[2], 64)
+		if err1 != nil || err2 != nil {
+			fmt.Println("Invalid coordinates. Use: cliOpn get coordinate <lat> <lon>")
+			os.Exit(1)
+		}
+		fmt.Printf("Fetching weather data for coordinates: %f, %f...\n", lat, lon)
+		data, err := handlers.FetchWeatherData(lat, lon)
+		if err != nil {
+			fmt.Printf("Error fetching weather data: %v\n", err)
+			return
+		}
+		fmt.Println(data)
+	default:
+		printHelp()
 		os.Exit(1)
 	}
-	fmt.Println("Weather data:", data)
-
 }
 func handleConfigCommand(args []string) {
 	if len(args) < 2 {
@@ -70,15 +94,14 @@ func handleConfigCommand(args []string) {
 			os.Exit(1)
 		}
 		lat, err := strconv.ParseFloat(args[1], 64)
+
 		if err != nil {
 			log.Fatal("Invalid latitude value: %s\n", args[1])
-			os.Exit(1)
 		}
 
 		lon, err := strconv.ParseFloat(args[2], 64)
 		if err != nil {
 			log.Fatal("Invalid longitude value: %s\n", args[2])
-			os.Exit(1)
 		}
 
 		if err := config.UpdateCoordinates(lat, lon); err != nil {

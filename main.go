@@ -2,6 +2,8 @@ package main
 
 import (
 	"cliOpn/starter"
+	"github.com/joho/godotenv"
+	"log"
 	"os"
 )
 
@@ -9,8 +11,14 @@ import (
 // the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Erro ao carregar o arquivo .env")
+	}
+
 	if len(os.Args) > 1 {
 		// Modo CLI
+
 		starter.HandleCLI()
 	} else {
 		// Modo Servidor
