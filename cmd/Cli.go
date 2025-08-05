@@ -22,7 +22,7 @@ func Execute() {
 		handleConfigCommand(os.Args[2:])
 	case "show":
 		fmt.Println("Current configuration:")
-		if err := config.ReadConfig(); err != nil {
+		if err, _ := config.GetConfig(); err != nil {
 			log.Fatalf("Error reading config: %v", err)
 		}
 	default:
@@ -47,9 +47,8 @@ func handleGetCommand(args []string) {
 
 	switch args[0] {
 	case "weather":
-
 		fmt.Println("Fetching weather data... ")
-		data, err := handlers.FetchWeatherData(0, 0)
+		data, err := handlers.FetchWeatherDataWithJson()
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
@@ -67,7 +66,7 @@ func handleGetCommand(args []string) {
 			os.Exit(1)
 		}
 		fmt.Printf("Fetching weather data for coordinates: %f, %f...\n", lat, lon)
-		data, err := handlers.FetchWeatherData(lat, lon)
+		data, err := handlers.FetchWeatherDataWithCoordinates(lat, lon)
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return

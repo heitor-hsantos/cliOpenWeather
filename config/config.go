@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"sync"
 )
@@ -53,8 +52,6 @@ func GetConfig() (*Config, error) {
 	return instance, loadErr
 }
 
-var AppConfig Config
-
 func (c *Config) SaveConfig() error {
 	// Garante que o diretório existe
 	dirPath := "Json"
@@ -100,25 +97,4 @@ func UpdatexcludedFields(excluded []string) error {
 	conf.ExcludedFields = excluded
 
 	return conf.SaveConfig()
-}
-
-func ReadConfig() error {
-	data, err := os.ReadFile(configPath)
-
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(data, &AppConfig)
-	if err != nil {
-		return err
-	}
-	result, err := json.MarshalIndent(AppConfig, "", "  ")
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(result))
-
-	return nil
-
 }

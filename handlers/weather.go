@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"cliOpn/config"
 	"cliOpn/models"
 	"encoding/json"
 	"fmt"
@@ -13,8 +14,8 @@ import (
 	"strings"
 )
 
-// FetchWeatherData busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros e retorna uma estrutura WeatherResponse ou um erro
-func FetchWeatherData(lat, lon float64) (*models.WeatherResponse, error) {
+// FetchWeatherDataWithCoordinates busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros e retorna uma estrutura WeatherResponse ou um erro
+func FetchWeatherDataWithCoordinates(lat, lon float64) (*models.WeatherResponse, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Erro ao carregar o arquivo .env")
@@ -60,31 +61,44 @@ func FetchWeatherData(lat, lon float64) (*models.WeatherResponse, error) {
 	return &models.WeatherResponse{}, nil
 }
 
+// FetchWeatherDataWithJson busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros de um JSOn da aplicação e retorna uma estrutura WeatherResponse ou um erro
+func FetchWeatherDataWithJson() (*models.WeatherResponse, error) {
+	cfg, err := config.GetConfig()
+	if err != nil {
+		log.Printf("Erro ao obter configuração: %v", err)
+		return nil, err
+	}
+	return FetchWeatherDataWithCoordinates(cfg.Lat, cfg.Lon)
+}
+
 // GetWeatherData é um manipulador de rota que retorna dados de previsão do tempo
 func GetWeatherData(w http.ResponseWriter, r *http.Request) {
+	var weatherData *models.WeatherResponse
+	var err error
 
 	latStr := r.URL.Query().Get("lat")
-	if latStr == "" {
-		http.Error(w, "O parâmetro 'lat' é obrigatório", http.StatusBadRequest)
-		return
-	}
 	lonStr := r.URL.Query().Get("lon")
-	if lonStr == "" {
-		http.Error(w, "O parâmetro 'lon' é obrigatório", http.StatusBadRequest)
-		return
-	}
-	lat, err := strconv.ParseFloat(latStr, 64)
-	if err != nil {
-		http.Error(w, "Parâmetro 'lat' inválido", http.StatusBadRequest)
-		return
-	}
-	lon, err := strconv.ParseFloat(lonStr, 64)
-	if err != nil {
-		http.Error(w, "Parâmetro 'lon' inválido", http.StatusBadRequest)
-		return
-	}
 
-	weatherData, err := FetchWeatherData(lat, lon)
+	if latStr != "" && lonStr != "" {
+		lat, err := strconv.ParseFloat(latStr, 64)
+		lon, err := strconv.ParseFloat(lonStr, 64)
+		if err != nil {
+			http.Error(w, "Parâmetros 'lat' ou 'lon' inválidos", http.StatusBadRequest)
+			return
+		}
+		weatherData, err = FetchWeatherDataWithCoordinates(lat, lon)
+	} else {
+		weatherData, err = FetchWeatherDataWithJson()
+		if err != nil {
+			log.Printf("Erro ao buscar dados do tempo: %v", err)
+			http.Error(w, "Erro ao buscar dados do tempo", http.StatusInternalServerError)
+			return
+		}
+		if weatherData == nil {
+			http.Error(w, "Dados do tempo não encontrados", http.StatusNotFound)
+			return
+		}
+	}
 	if err != nil {
 		log.Printf("Erro ao buscar dados do tempo: %v", err)
 		http.Error(w, "Erro ao buscar dados do tempo", http.StatusInternalServerError)
