@@ -22,9 +22,6 @@ func Execute() {
 		handleConfigCommand(os.Args[2:])
 	case "show":
 		fmt.Println("Current configuration:")
-		fmt.Println(config.AppConfig.Lon)
-		fmt.Println(config.AppConfig.Lat)
-		fmt.Println(config.AppConfig.ExcludedFields)
 		if err := config.ReadConfig(); err != nil {
 			log.Fatalf("Error reading config: %v", err)
 		}
@@ -52,7 +49,7 @@ func handleGetCommand(args []string) {
 	case "weather":
 
 		fmt.Println("Fetching weather data... ")
-		data, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
+		data, err := handlers.FetchWeatherData(0, 0)
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
@@ -109,7 +106,6 @@ func handleConfigCommand(args []string) {
 		}
 		fmt.Println("Updated default coordinates:", lat, lon)
 
-		fmt.Printf("Latitude updated to: %f\n", config.AppConfig.Lat)
 	case "excluded":
 		if len(args) < 2 {
 			err := config.UpdatexcludedFields(args[1:])

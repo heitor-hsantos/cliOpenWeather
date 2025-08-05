@@ -4,42 +4,60 @@ import (
 	"cliOpn/models"
 	"encoding/json"
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // FetchWeatherData busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros e retorna uma estrutura WeatherResponse ou um erro
 func FetchWeatherData(lat, lon float64) (*models.WeatherResponse, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Erro ao carregar o arquivo .env")
+	}
+
 	apiKey := os.Getenv("OPENWEATHER_API_KEY")
 	apiUrl := os.Getenv("OPENWEATHER_API_URL")
 
-	//"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}"
-	requestURL := fmt.Sprintf("%s?lat=%f&lon=%f&exclude=minutely&appid=%s", apiUrl, lat, lon, apiKey)
+	ApiUrl := fmt.Sprintf("%s?lat=%f&lon=%f&appid=%s", apiUrl, lat, lon, apiKey)
 
-	resp, err := http.Get(requestURL)
+	fmt.Println(ApiUrl)
+
+	method := "GET"
+
+	payload := strings.NewReader(``)
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, ApiUrl, payload)
+
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch weather data: %w", err)
+		fmt.Println(err)
+		return nil, nil
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
 
 		}
-	}(resp.Body)
+	}(res.Body)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch weather data: status code %d", resp.StatusCode)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, nil
 	}
-
-	var weatherData models.WeatherResponse
-	if err := json.NewDecoder(resp.Body).Decode(&weatherData); err != nil {
-		return nil, fmt.Errorf("failed to decode weather data: %w", err)
-	}
-
-	return &weatherData, nil
+	fmt.Println(string(body))
+	// Arrumar depois para ajustar a leitura do JSON de resposta do CLI
+	return &models.WeatherResponse{}, nil
 }
 
 // GetWeatherData é um manipulador de rota que retorna dados de previsão do tempo
