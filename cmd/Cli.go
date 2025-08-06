@@ -22,12 +22,11 @@ func Execute() {
 		handleConfigCommand(os.Args[2:])
 	case "show":
 		fmt.Println("Current configuration:")
-		fmt.Println(config.AppConfig.Lon)
-		fmt.Println(config.AppConfig.Lat)
-		fmt.Println(config.AppConfig.ExcludedFields)
-		if err := config.ReadConfig(); err != nil {
+		if err, _ := config.GetConfig(); err != nil {
 			log.Fatalf("Error reading config: %v", err)
 		}
+	case "help":
+		printHelp()
 	default:
 		printHelp()
 		os.Exit(1)
@@ -40,7 +39,8 @@ func printHelp() {
 		"Example: cliOpn get weather \n" +
 		"Example: cliOpn set coordinates 40.7128 -74.0060 \n" +
 		"Example: cliOpn set excluded minutely hourly daily alerts \n" +
-		"Example: cliOpn show {display current json config}")
+		"Example: cliOpn show {display current json config}" +
+		"\n Exclude:\n" + "current\nminutely\nhourly\ndaily\nalerts")
 }
 func handleGetCommand(args []string) {
 	if len(args) < 1 {
@@ -50,14 +50,17 @@ func handleGetCommand(args []string) {
 
 	switch args[0] {
 	case "weather":
-
 		fmt.Println("Fetching weather data... ")
-		data, err := handlers.FetchWeatherData(config.AppConfig.Lat, config.AppConfig.Lon)
+		data, err := handlers.FetchWeatherDataWithJson()
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
 		}
-		fmt.Println(data)
+		if data == nil {
+			fmt.Println("No weather data found.")
+			return
+		}
+
 	case "coordinate":
 		if len(args) < 3 {
 			fmt.Println("Usage: cliOpn get coordinate <lat> <lon>")
@@ -70,12 +73,18 @@ func handleGetCommand(args []string) {
 			os.Exit(1)
 		}
 		fmt.Printf("Fetching weather data for coordinates: %f, %f...\n", lat, lon)
-		data, err := handlers.FetchWeatherData(lat, lon)
+		cfg, err := config.GetConfig()
+
+		data, err := handlers.FetchWeatherDataWithCoordinates(lat, lon, cfg.ExcludedFields)
 		if err != nil {
 			fmt.Printf("Error fetching weather data: %v\n", err)
 			return
 		}
-		fmt.Println(data)
+		if data == nil {
+			fmt.Println("No weather data found for the specified coordinates.")
+			return
+		}
+		fmt.Println("Weather data for coordinates:", lat, lon)
 	default:
 		printHelp()
 		os.Exit(1)
@@ -109,7 +118,6 @@ func handleConfigCommand(args []string) {
 		}
 		fmt.Println("Updated default coordinates:", lat, lon)
 
-		fmt.Printf("Latitude updated to: %f\n", config.AppConfig.Lat)
 	case "excluded":
 		if len(args) < 2 {
 			err := config.UpdatexcludedFields(args[1:])
