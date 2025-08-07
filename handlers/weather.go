@@ -62,7 +62,7 @@ func FetchWeatherDataWithCoordinates(lat, lon float64, exclude []string) (*model
 		return nil, fmt.Errorf("erro ao decodificar JSON: %w", err)
 	}
 
-	// Arrumar depois para ajustar a leitura do JSON de resposta do CLI
+	
 	return &weatherResponse, nil
 }
 
