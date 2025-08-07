@@ -3,6 +3,7 @@ package cmd
 import (
 	"cliOpn/config"
 	"cliOpn/handlers"
+	"cliOpn/output"
 	"fmt"
 	"log"
 	"os"
@@ -50,16 +51,17 @@ func handleGetCommand(args []string) {
 
 	switch args[0] {
 	case "weather":
-		fmt.Println("Fetching weather data... ")
-		data, err := handlers.FetchWeatherDataWithJson()
-		if err != nil {
-			fmt.Printf("Error fetching weather data: %v\n", err)
+		cfg, err := config.GetConfig()
+		// Exemplo fixo de coordenadas e exclude para teste
+		resp, err := handlers.FetchWeatherDataWithCoordinates(cfg.Lat, cfg.Lon, cfg.ExcludedFields)
+		if err != nil || resp == nil {
+			fmt.Println("Erro ao buscar dados do tempo:", err)
 			return
 		}
-		if data == nil {
-			fmt.Println("No weather data found.")
-			return
-		}
+		// Formata e exibe os dados
+		formatted := output.FormatWeatherData(*resp)
+		fmt.Printf("🌡 Temperatura: %.2f°C\n 🚰 Umidade: %d%%\n ☁️  Nuvens: %d%%\n ☂️ Precipitação: %.2fmm\n 🌧️ Chuva: %.2fmm\n",
+			formatted.Temp, formatted.Humidity, formatted.Clouds, formatted.Precipitation, formatted.Rain)
 
 	case "coordinate":
 		if len(args) < 3 {
