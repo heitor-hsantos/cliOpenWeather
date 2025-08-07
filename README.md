@@ -6,7 +6,7 @@
 ### Utilizando a API OneCall 3.0 da OpenWHeather para extrair os dados do clima com Golang
 ## O uso da API é simples:
 
-os comandos são iniciados com cliOpn e depois o comando ->
+os comandos são iniciados com weatherapp e depois o comando ->
 
 get weather(se o JSON ja estiver configurado ou utilizando as configurações default)
 
@@ -18,7 +18,10 @@ set coordinates -> repassa as coordenadas para salvar no JSON
 
 set excluded -> repassa os campos a serem excluidos do JSON
 
-Exemplo de uso -> cliOpn get weather -> resposta esperada é o JSON com informações de Temperatura,humidade e chance de chuva
+Exemplo de uso -> weatherapp get weather -> resposta esperada é o JSON com informações de Temperatura,humidade e chance de chuva
+
+a api funciona apenas em ambiente Linux, para usa-lo é necessario gerar uma API key no site da OpenWeather para o OneCall 3.0
+execure o setup.sh e insira a sua api key para o app funcionar corretamente.
 
 <html>
   <div> 
