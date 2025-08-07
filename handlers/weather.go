@@ -27,9 +27,7 @@ func FetchWeatherDataWithCoordinates(lat, lon float64, exclude []string) (*model
 
 	formatExcluded := strings.Join(exclude, ",")
 
-	ApiUrl := fmt.Sprintf("%s?lat=%f&lon=%f&exclude=%s&appid=%s", apiUrl, lat, lon, formatExcluded, apiKey)
-
-	fmt.Println(ApiUrl)
+	ApiUrl := fmt.Sprintf("%s?lat=%f&lon=%f&exclude=%s&units=metric&lang=pt_br&appid=%s", apiUrl, lat, lon, formatExcluded, apiKey)
 
 	method := "GET"
 
@@ -59,9 +57,13 @@ func FetchWeatherDataWithCoordinates(lat, lon float64, exclude []string) (*model
 		fmt.Println(err)
 		return nil, nil
 	}
-	fmt.Println(string(body))
+	var weatherResponse models.WeatherResponse
+	if err := json.Unmarshal(body, &weatherResponse); err != nil {
+		return nil, fmt.Errorf("erro ao decodificar JSON: %w", err)
+	}
+
 	// Arrumar depois para ajustar a leitura do JSON de resposta do CLI
-	return &models.WeatherResponse{}, nil
+	return &weatherResponse, nil
 }
 
 // FetchWeatherDataWithJson busca dados de previsão do tempo da API OpenWeather Recebe latitude e longitude como parâmetros de um JSOn da aplicação e retorna uma estrutura WeatherResponse ou um erro
