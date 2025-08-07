@@ -2,8 +2,6 @@ package starter
 
 import (
 	"cliOpn/cmd"
-	"cliOpn/config"
-	"fmt"
 	_ "strings"
 )
 
