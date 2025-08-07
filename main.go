@@ -19,9 +19,5 @@ func main() {
 	if len(os.Args) > 1 {
 		// Modo CLI
 		starter.HandleCLI()
-	} else {
-		// Modo Servidor
-		starter.StartServer()
 	}
-
 }
