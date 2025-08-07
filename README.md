@@ -22,6 +22,13 @@ Exemplo de uso -> weatherapp get weather -> resposta esperada é o JSON com info
 
 a api funciona apenas em ambiente Linux, para usa-lo é necessario gerar uma API key no site da OpenWeather para o OneCall 3.0
 execure o setup.sh e insira a sua api key para o app funcionar corretamente.
+clique no icone abaixo para redirecionar para a pagina da openweather e siga as instruções para adquirir uma chave da API OneCall 3.0
+<html>
+ <div>
+   <a href="https://openweathermap.org/api/" target="_blank"><img src="https://badgen.net/badge/OpenWeather/api OneCall/?color=cyan" target="_blank"></a>
+ </div>
+ 
+</html>
 
 <html>
   <div> 
