@@ -28,9 +28,6 @@ clique no icone abaixo para redirecionar para a pagina da openweather e siga as 
    <a href="https://openweathermap.org/api/" target="_blank"><img src="https://badgen.net/badge/OpenWeather/api OneCall/?color=cyan" target="_blank"></a>
  </div>
  
-</html>
-
-<html>
   <div> 
    <img src="https://github.com/egonelbre/gophers/blob/master/vector/fairy-tale/witch-learning.svg">
   </div>
