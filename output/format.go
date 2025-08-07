@@ -5,8 +5,7 @@ import (
 	"fmt"
 )
 
-// formatWeatherData formata os dados de previsão do tempo para exibição
-// Recebe os dados como interface{} e retorna uma string formatada
+
 type WeatherDataFormatted struct {
 	Temp          float64 `json:"temp"`
 	Humidity      int     `json:"humidity"`
@@ -14,7 +13,7 @@ type WeatherDataFormatted struct {
 	Precipitation float64 `json:"precipitation"`
 	Rain          float64 `json:"rain"`
 }
-
+// FormatWeatherData formata os dados de previsão do tempo para exibição
 func FormatWeatherData(resp models.WeatherResponse) WeatherDataFormatted {
 	fmt.Println("Formatting weather data...")
 
