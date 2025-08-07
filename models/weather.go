@@ -1,6 +1,5 @@
 package models
 
-// WeatherData representa um modelo de dado de exemplo
 
 // Structs para mapear a resposta da API de previsão do tempo
 
