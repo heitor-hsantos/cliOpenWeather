@@ -52,7 +52,7 @@ func handleGetCommand(args []string) {
 	switch args[0] {
 	case "weather":
 		cfg, err := config.GetConfig()
-		// Exemplo fixo de coordenadas e exclude para teste
+	
 		resp, err := handlers.FetchWeatherDataWithCoordinates(cfg.Lat, cfg.Lon, cfg.ExcludedFields)
 		if err != nil || resp == nil {
 			fmt.Println("Erro ao buscar dados do tempo:", err)
